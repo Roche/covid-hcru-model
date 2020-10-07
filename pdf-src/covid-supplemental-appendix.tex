@@ -1,0 +1,502 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{natbib}
+\usepackage{hyperref}
+\usepackage{makecell}
+\usepackage{graphicx}
+\usepackage[margin=0.8in]{geometry}
+
+\makeatletter \let\c@table\c@figure \makeatother
+
+\renewcommand{\figurename}{Exhibit}
+\renewcommand{\tablename}{Exhibit}
+\renewcommand{\thefigure}{A\arabic{figure}}
+\renewcommand{\thetable}{A\arabic{figure}}
+
+\title{Impact of public and private sector COVID-19 diagnostics and treatments on US healthcare resource utilization - supplemental appendix}
+\date{September 2020}
+
+\begin{document}
+
+\maketitle
+
+\section{Model Description \label{sec:model}}
+
+Following \citet{moghadasCOVID}, we specify an age-stratified compartmental model of the COVID-19 pandemic in which we track the number of susceptible ($S^a_t$), exposed ($E^a_t$), mildly symptomatic ($A^{i,a}_t$), severely symptomatic ($I^{i,h,a}_t$), hospitalized ($H^{c,v,a}_t$), deceased ($D^a_t$), and recovered ($R^a_t$) individuals in age group $a$ at time $t$, where $i \in \{0,1\}$ indicates whether individuals are self-isolated, $h \in \{0,1\}$ indicates whether individuals require hospitalization, $c \in \{0,1\}$ indicates whether hospital patients get admitted to the intensive-care unit (ICU), and $v \in \{0,1\}$ indicates whether hospital patients require mechanical ventilation. We assumed that mechanical ventilation is only present in the ICU, so that $H^{0,1,a}_t$ does not exist.
+
+Furthermore, we incorporate additional states that represent the number of patients that are infected but asymptomatic, $\tilde{A}^{i,a}_t$, and the number of patients under testing (from the time the patient goes to get tested to the time the test result is made available), $T^{s,h,a}_t$, where $s \in \{0,1,2\}$ is an indicator of whether the patient is asymptomatic (0), mildly symptomatic (1) or severely symptomatic (2) and $h \in \{0,1\}$ again indicates whether patients require hospitalization. We assumed that asymptomatic and mildly symptomatic patients will not require hospitalization (so that $T^{0,1,a}_t$ and $T^{1,1,a}_t$ do not exist). After adding these additional states, the original $E^a_t$ represent exposed patients who will become infectious, while the original infectious states ($\tilde{A}^{i,a}_t$, $A^{i,a}_t$, $I^{i,h,a}_t$) represent infected patients who are not under testing. The model structure is pictured in Exhibit \ref{fig:model}.
+
+\begin{figure}[hbt!]
+\centering
+\includegraphics[width=1.0\textwidth]{figures/Figure1}
+\caption{Compartmental model structure.} \label{fig:model}
+\end{figure}
+
+We also included additional dynamic model states to represent changes in the effective transmission rate over time (e.g. due to social distancing), $\xi_t$, and changes in the proportion of mild and severe patients getting tested over time ($w^A_t$ and $w^I_t$ for mild and severe, respectively).
+
+Mathematically, $S^a_t$, $E^a_t$, $\tilde{A}^{i,a}_t$, $A^{i,a}_t$, $I^{i,h,a}_t$, $T^{s,h,a}_t$, $H^{c,v,a}_t$, $D^a_t$, $R^a_t$, and $\xi_t$ are all nonnegative for all $t$, while $w^A_t$ and $w^I_t$ are between 0 and 1 for all $t$. When monitoring the pandemic, the true $S^a_t$, $E^a_t$, $\tilde{A}^{i,a}_t$, $A^{i,a}_t$, $I^{i,h,a}_t$, $T^{s,h,a}_t$, $H^{c,v,a}_t$, $D^a_t$, and $R^a_t$, $\xi_t$, $w^A_t$, and $w^I_t$ are unknown and regarded as hidden states of the model.
+
+The model is also governed by fixed parameters related to disease transmission, behavior and symptoms, testing, and hospitalization. These are described in Exhibit \ref{tab:param}.
+
+Lastly, the unknown states and fixed parameters were assumed to be related to observed data from The COVID Tracking Project \href{covidtracking.com}{(covidtracking.com)}.  The data include the reported number of positive tests ($p_t$), patients currently hospitalized ($h_t$), patients in the ICU ($i_t$), patients on mechanical ventilation ($v_t$), and cumulative deaths ($d_t$) at time $t$. Given the states, fixed parameters, and observed data defined above, we construct a state-space model of the COVID-19 pandemic in the US, in which an observation equation specifies how the observed data depend on the hidden state of the pandemic and the state equation describes how the pandemic evolves over time.
+
+\begin{table}[hp!]
+\begin{center}
+\begin{tabular}{|c|l|}
+\hline
+Parameter & Description \\
+\hline
+\multicolumn{2}{|l|}{\textbf{\emph{Transmission parameters}}} \\
+\hline
+$P_a \ge 0$ & population size for age group $a$ \\
+$\beta \ge 0$ & transmission rate per contact \\
+$M_{a,c} \ge 0$ & community contact rate per day between people in age groups $a$ and $c$ \\
+$\tilde{M}_{a,c} \ge 0$ & household (isolation) contact rate per day between people in age groups $a$ and $c$ \\
+$\kappa_M \in [0,1]$ & relative infectivity of mild versus severe illness \\
+$\kappa_A \in [0,1]$ & relative infectivity of asymptomatic versus severe illness \\
+$\nu \ge 0$ & symptom onset rate per day among infected (inverse of the incubation period) \\
+\hline
+\multicolumn{2}{|l|}{\textbf{\emph{Symptoms and behavioral parameters}}} \\
+\hline
+$\zeta_a \in [0,1]$ & proportion of infected individuals in age group $a$ that are asymptomatic \\
+$\theta_a \in [0,1]$ & proportion of cases in age group $a$ exhibiting mild symptoms \\
+$\gamma \ge 0$ & recovery rate per day from symptom onset \\
+$q \in [0,1]$ & proportion of severe cases who practice self-isolation upon symptom onset \\
+$f_I \in [0,1]$ & weight associated with self-isolation after symptom onset for severe cases \\
+$f_A \in [0,1]$ & weight associated with self-isolation after symptom onset for mild cases \\
+$f_T \in [0,1]$ & proportion of cases that self-isolate while waiting for test results \\
+$\tau_I \ge 0$ & self-isolation rate per day for severe cases after symptom onset \\
+$\tau_A \ge 0$ & self-isolation rate per day for mild cases after symptom onset \\
+$\phi_\xi \in (0,1)$ & autocorrelation parameter for the change in transmission rate over time \\
+$\sigma_\xi \ge 0$ & white noise standard deviation of the change in transmission rate over time \\
+\hline
+\multicolumn{2}{|l|}{\textbf{\emph{Testing parameters}}} \\
+\hline
+$w_s \in [0,1]$ & proportion of asymptomatic cases that get tested \\
+$r_I \ge 0$ & rate per day of testing for severe cases \\
+$r_A \ge 0$ & rate per day of testing for asymptomatic and mild cases \\
+$\varphi \ge 0$ & daily turnaround rate of testing \\
+$\omega \ge 0$ & sensitivity of testing \\
+$\phi_I \in (0,1)$ & autocorrelation parameter for the change in testing of severe cases over time \\
+$\phi_A \in (0,1)$ & autocorrelation parameter for the change in testing of mild cases over time \\
+$\sigma_w \ge 0$ & white noise standard deviation of the change in testing of severe and mild cases over time \\
+$\alpha \ge 0$ & upper limit of overall daily testing capacity \\
+$p_\alpha \in [0,1]$ & proportion of testing capacity applied to the infected population \\
+\hline
+\multicolumn{2}{|l|}{\textbf{\emph{Hospitalization parameters}}} \\
+\hline
+$\delta \ge 0$ & hospitalization rate per day \\
+$\rho_a \in [0,1]$ & proportion of severe cases in age group $a$ requiring hospitalization \\
+$c_a \in [0,1]$ & proportion of hospitalized cases in age group $a$ admitted to the ICU \\
+$v \in [0,1]$ & proportion of patients admitted to the ICU that require mechanical ventilation \\
+$\mu_h \ge 0$ & rate per day of death for hospitalized patients not admitted to the ICU \\
+$\mu_c \ge 0$ & rate per day of death for patients admitted to the ICU but not on mechanical ventilation \\
+$\mu_v \ge 0$ & rate per day of death for patients on mechanical ventilation \\
+$m_h \in [0,1]$ & weight associated with death for hospitalized patients not admitted to the ICU \\
+$m_c \in [0,1]$ & weight associated with death for ICU patients not on mechanical ventilation \\
+$m_v \in [0,1]$ & weight associated with death for patients on mechanical ventilation \\
+$\psi_h \ge 0$ & rate per day of recovery for hospitalized patients not admitted to the ICU \\
+$\psi_c \ge 0$ & rate per day of recovery for patients admitted to the ICU but not on mechanical ventilation \\
+$\psi_v \ge 0$ & rate per day of recovery for patients on mechanical ventilation \\
+\hline
+\end{tabular}
+\caption{Definitions of fixed parameters.}
+\label{tab:param}
+\end{center}
+\end{table}
+
+\subsection{State equation \label{sec:state}}
+
+First, we describe the state equation. Let
+\begin{align*}
+x^a_t = (&S^a_t, E^a_t, \\
+ & \tilde{A}^{0,a}_t, \tilde{A}^{1,a}_t, A^{0,a}_t, A^{1,a}_t, \\
+ & I^{0,0,a}_t, I^{1,0,a}_t, I^{0,1,a}_t, I^{1,1,a}_t, \\
+ & T^{0,0,a}_t, T^{1,0,a}_t, T^{2,0,a}_t, T^{2,1,a}_t, \\
+ & H^{0,0,a}_t, H^{1,0,a}_t, H^{1,1,a}_t, \\
+ & D^a_t, R^a_t, \\
+ & \xi_t, w^A_t, w^I_t)'
+\end{align*}
+be the state of the pandemic for age group $a$ at time $t$, and let $x_t = ({x^1_t}', {x^2_t}', \dots, {x^\lambda_t}')'$, where $\lambda$ is the number of age groups.
+
+For the testing turnaround rate (i.e. inverse of the test system delay) and testing sensitivity parameters $\varphi$ and $\omega$, we assumed these represent the weighted average of $L$ available tests on the market, such that
+\[\varphi = \sum_{j=1}^L s_j \varphi_j \qquad \omega = \sum_{j=1}^L s_j \omega_j\]
+where $\varphi_j$, $\omega_j$, and $s_j \in [0,1]$ represent the turnaround rate, sensitivity, and market share, respectively, of test $j$, with $s_1 + s_2 + \dotsm s_L = 1$.
+
+Let the likelihood of coming in contact with an infectious individual in the community ($C^a_t$) versus while in isolation ($O^a_t$) be defined by the following:
+\begin{align*}
+C^a_t &= \frac{I^{0,0,a}_t + I^{0,1,a}_t + \kappa_M A^{0,a}_t + \kappa_A \tilde{A}^{0,a}_t + (1-f_T)\left(T^{2,0,a}_t + T^{2,1,a}_t + \kappa_M T^{1,0,a}_t + \kappa_A T^{0,0,a}_t\right)}{P_j} \\
+O^a_t &= \frac{I^{1,0,a}_t + I^{1,1,a}_t + \kappa_M A^{1,a}_t + \kappa_A \tilde{A}^{1,a}_t + f_T\left(T^{2,0,a}_t + T^{2,1,a}_t + \kappa_M T^{1,0,a}_t + \kappa_A T^{0,0,a}_t \right)}{P_a}
+\end{align*}
+Let $T_t = \sum_{j=1}^{\lambda} \left(T^{0,0,j}_t + T^{1,0,j}_t + T^{2,0,j}_t + T^{2,1,j}_t\right)$ be the total number of infected individuals under testing at time $t$ and define
+\[
+\begin{array}{cc}
+\tilde{T}^{0,0,a}_t = \mbox{min}\left(T^{0,0,a}_t, p_\alpha \alpha(T^{0,0,a}_t \mathbin{/} T_t)\right) \qquad \tilde{T}^{1,0,a}_t = \mbox{min}\left(T^{1,0,a}_t, p_\alpha \alpha(T^{1,0,a}_t \mathbin{/} T_t)\right) \\
+\tilde{T}^{2,0,a}_t = \mbox{min}\left(T^{2,0,a}_t, p_\alpha \alpha(T^{2,0,a}_t \mathbin{/} T_t)\right) \qquad \tilde{T}^{2,1,a}_t = \mbox{min}\left(T^{2,1,a}_t, p_\alpha \alpha(T^{2,1,a}_t \mathbin{/} T_t)\right)
+\end{array}
+\]
+as the number of individuals in each testing state that are able to receive testing results on a given day. We describe the evolution of the disease states from time $t$ to $t + 1$ deterministically by the following equations:
+{\allowdisplaybreaks
+\begin{align}
+S^a_{t+1} &= S^a_t - \xi_t\beta S^a_t \left(\sum_{j=1}^\lambda M_{a,j}C^a_t\ + \sum_{j=1}^\lambda \tilde{M}_{a,j}O^a_t\right) \label{eqn:sus} \\
+E^a_{t+1} &= E^a_t + \xi_t\beta S^a_t \left(\sum_{j=1}^\lambda M_{a,j}C^a_t\ + \sum_{j=1}^\lambda \tilde{M}_{a,j}O^a_t\right) - \nu E^a_t \label{eqn:expo} \\
+\tilde{A}^{0,a}_{t+1} &= \tilde{A}^{0,a}_t + \zeta_a\nu E^a_t + \phi(1-\omega)\tilde{T}^{0,0,a}_t - w_s r_A\tilde{A}^{0,a}_t - (1-w_s)\gamma\tilde{A}^{0,a}_t \label{eqn:asymp} \\
+\tilde{A}^{1,a}_{t+1} &= \tilde{A}^{1,a}_t + \phi\omega\tilde{T}^{0,0,a}_t - \gamma\tilde{A}^{1,a}_t \label{eqn:asympiso} \\
+A^{0,a}_{t+1} &= A^{0,a}_t + (1-\zeta_a)\theta_a\nu E^a_t + \phi(1-\omega)\tilde{T}^{1,0,a}_t \label{eqn:mild} \\
+& - w^A_t r_A A^{0,a}_t - (1-w^A_t)f_A\tau_A A^{0,a}_t - (1-w^A_t)(1 - f_A)\gamma A^{0,a}_t \nonumber \\
+A^{1,a}_{t+1} &= A^{1,a}_t + f_A\tau_A A^{0,a}_t + \phi\omega \tilde{T}^{1,0,a}_t - \gamma A^{1,a}_t \label{eqn:mildiso} \\
+I^{0,0,a}_{t+1} &= I^{0,0,a}_t + (1-\zeta_a)(1-\theta_a)(1-q)(1-\rho_a)\nu E^a_t + \phi(1-\omega)\tilde{T}^{2,0,a}_t \label{eqn:sev} \\
+& - w^I_t r_I I^{0,0,a}_t - (1-w^I_t)f_I\tau_I I^{0,0,a}_t - (1-w^I_t)(1-f_I)\gamma I^{0,0,a}_t \nonumber \\
+I^{1,0,a}_{t+1} &= I^{1,0,a}_t + (1-\zeta_a)(1-\theta_a)q(1-\rho_a)\nu E^a_t + (1-w^I_t)f_I\tau_I I^{0,0,a}_t + \phi\omega \tilde{T}^{2,0,a}_t - \gamma I^{1,0,a}_t  \label{eqn:seviso} \\
+I^{0,1,a}_{t+1} &= I^{0,1,a}_t + (1-\zeta_a)(1-\theta_a)(1-q)\rho_a\nu E^a_t + \phi(1-\omega)\tilde{T}^{2,1,a}_t \label{eqn:sevhosp} \\
+& - w^I_t r_I I^{0,1,a}_t - (1-w^I_t)f_I\tau_I I^{0,1,a}_t - (1-w^I_t)(1-f_I)\delta I^{0,1,a}_t \nonumber \\
+I^{1,1,a}_{t+1} &= I^{1,1,a}_t + (1-\zeta_a)(1-\theta_a)q\rho_a\nu E^a_t + (1-w^I_t)f_I\tau_I I^{0,1,a}_t + \phi\omega \tilde{T}^{2,1,a}_t - \delta I^{1,1,a}_t \label{eqn:sevisohosp} \\
+T^{0,0,a}_{t+1} &= T^{0,0,a}_t + w_s r_A \tilde{A}^{0,a}_t - \phi \tilde{T}^{0,0,a}_t  - \gamma T^{0,0,a}_t \label{eqn:tasym} \\
+T^{1,0,a}_{t+1} &= T^{1,0,a}_t + w^A_t r_A A^{0,a}_t - \phi \tilde{T}^{1,0,a}_t  - \gamma T^{1,0,a}_t \label{eqn:tmild} \\
+T^{2,0,a}_{t+1} &= T^{2,0,a}_t + w^I_t r_I I^{0,0,a}_t - \phi \tilde{T}^{2,0,a}_t  - \gamma T^{2,0,a}_t \label{eqn:tsev} \\
+T^{2,1,a}_{t+1} &= T^{2,1,a}_t + w^I_t r_I I^{0,1,a}_t - \phi \tilde{T}^{2,1,a}_t  - \delta T^{2,1,a}_t \label{eqn:tsevhosp} \\
+H^{0,0,a}_{t+1} &= H^{0,0,a}_t + (1-c_a)(1-w^I_t)(1-f_I)\delta I^{0,1,a}_t + (1-c_a)\delta I^{1,1,a}_t + (1-c_a)\delta T^{2,1,a}_t \label{eqn:hosp} \\
+& - \left(m_h\mu_h + (1-m_h)\psi_h\right) H^{0,0,a}_t \nonumber \\
+H^{1,0,a}_{t+1} &= H^{1,0,a}_t + (1-v)c_a(1-w^I_t)(1-f_I)\delta I^{0,1,a}_t + (1-v)c_a\delta I^{1,1,a}_t + (1-v)c_a\delta T^{2,1,a}_t \label{eqn:icu} \\
+& - \left(m_c\mu_c + (1-m_c)\psi_c\right) H^{1,0,a}_t \nonumber \\
+H^{1,1,a}_{t+1} &= H^{1,1,a}_t + v c_a(1-w^I_t)(1-f_I)\delta I^{0,1,a}_t + v c_a\delta I^{1,1,a}_t + v c_a\delta T^{1,1,a}_t - \left(m_v\mu_v + (1-m_v)\psi_v\right) H^{1,1,a}_t \label{eqn:vent} \\
+D^a_{t+1} &= D^a_t + m_h\mu_h H^{0,0,a}_t + m_c\mu_c H^{1,0,a}_t + m_v\mu_v H^{1,1,a}_t \label{eqn:died} \\
+R^a_{t+1} &= R^a_t + (1-w^A_t)(1 - f_A)\gamma A^{0,a}_t + \gamma\tilde{A}^{1,a}_t + (1-w^A_t)(1 - f_A)\gamma A^{0,a}_t \label{eqn:rec} \\
+ & + \gamma A^{1,a}_t + (1-w^I_t)(1-f_I)\gamma I^{0,0,a}_t + \gamma I^{1,0,a}_t + \gamma T^{0,0,a}_t + \gamma T^{1,0,a}_t + \gamma T^{2,0,a}_t \nonumber \\
+ & + (1-m_h)\psi_h H^{0,0,a}_t + (1-m_c)\psi_c H^{1,0,a}_t + (1-m_v)\psi_v H^{1,1,a}_t \nonumber
+\end{align}}
+
+The evolution of the dynamic states $\xi_t$, $w^A_t$, and $w^I_t$ from time $t$ to $t+1$ follow the constrained first-order autoregressive (AR1) processes
+\begin{align}
+\xi_{t+1} &= \mbox{max}(\phi_\xi \xi_t + \epsilon_\xi, 0) \label{eqn:xi} \\
+w^A_{t+1} &= \mbox{min}\left(\mbox{max}(\phi_A (w^A_t - 1) + \epsilon_w + 1, 0), 1\right) \label{eqn:testmild} \\
+w^I_{t+1} &= \mbox{min}\left(\mbox{max}(\phi_I (w^I_t - 1) + \epsilon_w + 1, 0), 1\right) \label{eqn:testsev}
+\end{align}
+where $\epsilon_\xi$ and $\epsilon_w$ are independent, normally distributed random errors with mean 0 and standard deviations $\sigma_\xi$ and $\sigma_w$, respectively. The AR1 processes are defined such that they are stationary and constrained to be either nonnegative ($\xi_t$) or bounded by $(0,1)$ ($w^A_t$ and $w^I_t$). The asymptotic means $\mbox{E}(\xi_t) = 0$ and $\mbox{E}(w^A_t) = \mbox{E}(w^I_t) = 1$ are such that the effective transmission rate approaches 0 and the proportion of mild and severe cases tested approaches 100\% in the long run.
+
+\subsection{Observation equation \label{sec:obs}}
+
+Let $y_t = (p_t, h_t, i_t, v_t, d_t)'$ be the observed data from The COVID Tracking Project, and let \[T^p_t = \phi\omega\left[\sum_{j=1}^{\lambda} \left(\tilde{T}^{0,0,j}_t + \tilde{T}^{1,0,j}_t + \tilde{T}^{2,0,j}_t + \tilde{T}^{2,1,j}_t\right)\right]\] be the number of new positive tests at time $t$. We model the log of the observations by
+\begin{align}
+\log p_t &= \log T^p_t + \eta_p \label{eqn:obspos} \\
+\log h_t &= \log \left[ \sum_{j=1}^{\lambda} \left(H^{0,0,j}_t + H^{1,0,j}_t + H^{1,1,j}_t\right)\right] + \eta_h \label{eqn:obshosp} \\
+\log i_t &= \log \left[ \sum_{j=1}^{\lambda} \left(H^{1,0,j}_t + H^{1,1,j}_t\right)\right] + \eta_i \label{eqn:obsicu} \\
+\log v_t &= \log \left[ \sum_{j=1}^{\lambda}H^{1,1,j}_t\right] + \eta_v \label{eqn:obsvent} \\
+\log d_t &= \log \left[ \sum_{j=1}^\lambda D^j_t \right] + \eta_d \label{eqn:obsdeath}
+\end{align}
+where $\eta_p$, $\eta_h$ , $\eta_i$ , $\eta_v$, and $\eta_d$ are independent, normally distributed random errors with mean 0 and standard deviations $\sigma_p$, $\sigma_h$, $\sigma_i$, $\sigma_v$, and $\sigma_d$, respectively. The data are modelled on the log scale in order to constrain stochastic observations to be positive.
+
+\section{Model Calibration \label{sec:est}}
+Having formulated the state-space model, let $\theta$ represent all unknown fixed parameters. Then, we specify the likelihood of an observation $y_t$ given the current state $x_t$ and fixed parameters $\theta$ by $p(y_t|x_t,\theta)$, which according to equations \ref{eqn:obspos} through \ref{eqn:obsdeath} follows a log-normal density with mean $F_t$ and covariance matrix $\Sigma_t$ defined on the log-scale by
+\[
+F_t = \left(
+\begin{array}{c}
+\log T^p_t \\
+\log \left[ \sum_{j=1}^{\lambda} \left(H^{0,0,j}_t + H^{1,0,j}_t + H^{1,1,j}_t\right) \right] \\
+\log \left[ \sum_{j=1}^{\lambda} \left(H^{1,0,j}_t + H^{1,1,j}_t\right) \right] \\
+\log \left[ \sum_{j=1}^{\lambda}H^{1,1,j}_t \right] \\
+\log \left[ \sum_{j=1}^\lambda D^j_t \right]
+\end{array}
+\right)
+\qquad
+\Sigma_t = \left(
+\begin{array}{ccccc}
+\sigma^2_p & 0 & 0 & 0 & 0 \\
+0 & \sigma^2_h & 0 & 0 & 0 \\
+0 & 0 & \sigma^2_i & 0 & 0 \\
+0 & 0 & 0 & \sigma^2_v & 0 \\
+0 & 0 & 0 & 0 & \sigma^2_d
+\end{array}
+\right)
+\]
+The probability density of the future state $x_{t+1}$ given the current state $x_t$ and fixed parameters $\theta$, denoted by $p(x_{t+1}|x_t,\theta)$, can be sampled from according to the deterministic state equations \ref{eqn:sus} through \ref{eqn:rec} and constrained AR1 processes given by equations \ref{eqn:xi} through \ref{eqn:testsev}.
+
+Let $x_{1:t} = (x_1,\ldots,x_t)$ and $y_{1:t} = (y_1,\ldots,y_t)$. We calibrate the model by sequentially estimating the filtered distribution at time $t+1$, $p(x_{t+1},\theta|y_{1:{t+1}})$, given an estimate of the filtered distribution at time $t$, $p(x_t,\theta|y_{1:t})$, and a new data point, $y_{t+1}$. Since the state equations are nonlinear functions of $x_t$ and $\theta$, a closed-form solution to $p(x_{t+1},\theta|y_{1:{t+1}})$ cannot be obtained. Thus, we use the kernel density particle filter (KDPF) described by \citet{Liu:West:comb:2001} to approximate $p(x_t,\theta|y_{1:t})$ for all $t$.
+
+\subsection{Kernel density particle filter \label{sec:kd}}
+
+The KDPF approximates $p(x_t,\theta| y_{1:t})$ via a weighted sample of $J$ particles, i.e.
+\begin{equation}
+p(x_t,\theta| y_{1:t}) \approx \sum_{j=1}^J w_t^{(j)} I\left(x_t^{(j)},\theta^{(j)}\right) \label{eqn:approx}
+\end{equation}
+where $\left(x_t^{(j)},\theta^{(j)}\right)$ is the location of the $j^{\mbox{th}}$ particle at time $t$, $w_t^{(j)}$ is the weight of that particle with $\sum_{j=1}^J w_t^{(j)}=1$, and $I(x,\theta)$ is the Dirac delta function that puts probability mass at $(x, \theta)$. To make the notation transparent, we introduce subscripts for our fixed parameters, e.g. $\theta_t^{(j)}$ represents the value for $\theta$ at time $t$ for particle $j$. This does not imply that the true $\theta$ is dynamic, but rather that particle $j$ can have different values for $\theta$ throughout time.
+
+One advantage of the KDPF is that it attempts to avoid degeneration in particle values (i.e. all particles end up having the same value) for fixed parameters that can result from repeated sampling. To do so, a kernel density approximation to the distribution of fixed parameters is constructed so that fixed parameter values can be regenerated at each time $t$. Let $\bar{\theta}_t$ and $V_t$ be the weighted sample mean and weighted sample covariance matrix of $\theta_t^{(1)},\ldots,\theta_t^{(J)}$.  The KDPF uses a tuning parameter $\Delta$, a discount factor that takes values in $(0,1)$, and two derived quantities $h^2 = 1 - ((3\Delta - 1)/2\Delta)^2$ and $a^2 = 1 - h^2$ that determine how smooth the kernel density approximation is.
+
+Given an approximation to the filtered distribution at time $t$ as in equation \ref{eqn:approx}, the KDPF provides an approximation to $p(x_{t+1},\theta|y_{1:t+1})$ by the following steps:
+
+\begin{enumerate}
+\item For each particle $j$, set $m_t^{(j)} = a\theta_t^{(j)} + (1-a)\bar{\theta}_t$ and calculate a point estimate of $x_{t+1}^{(j)}$ called $\mu_{t+1}^{(j)}$, e.g. $\mu_{t+1}^{(j)} = E\left(x_{t+1}\left|x_t^{(j)},\theta_t^{(j)} \right.\right)$.
+\item Calculate auxiliary weights and renormalize:
+\[ \tilde{g}_{t+1}^{(j)} = w_t^{(j)} p\left(y_{t+1}\left|\mu_{t+1}^{(j)},m_t^{(j)}\right.\right) \qquad g_{t+1}^{(j)} = \tilde{g}_{t+1}^{(j)}\left/ \sum_{l=1}^J \tilde{g}_{t+1}^{(l)}. \right. \]
+\item For each particle $j=1,\ldots,J$,
+	\begin{enumerate}
+    \item Resample: sample an index $k\in\{1,\ldots,j,\ldots,J\}$ with associated probabilities $\left\{g_{t+1}^{(1)},\ldots,g_{t+1}^{(j)},\ldots,g_{t+1}^{(J)}\right\}$,
+	\item Regenerate the fixed parameters: sample $\theta_{t+1}^{(j)} \sim \mbox{N}\left(m_t^{(k)}, h^2V_t \right)$,
+	\item Propagate: sample $x_{t+1}^{(j)} \sim p\left(x_{t+1}\left|x_t^{(k)},\theta_{t+1}^{(j)}\right.\right)$, and
+	\item Calculate weights and renormalize:
+	\[ \tilde{w}_{t+1}^{(j)} = \frac{p\left(y_{t+1}\left|x_{t+1}^{(j)},\theta_{t+1}^{(j)}\right.\right)}{p\left(y_{t+1}\left|\mu_{t+1}^{(k)},m_t^{(k)}\right.\right)}
+	\qquad
+	w_{t+1}^{(j)} = \tilde{w}_{t+1}^{(j)}\left/\sum_{l=1}^J \tilde{w}_{t+1}^{(l)}. \right. \]
+	\end{enumerate}
+\end{enumerate}
+
+\noindent In the above implementation of the KDPF, we use a normal kernel, where $\mbox{N}(\mu,\Sigma)$ represents the normal distribution with mean $\mu$ and covariance matrix $\Sigma$. For the point estimate of the future state for particle $j$, $\mu_{t+1}^{(j)}$, we use the deterministic state equations \ref{eqn:sus} through \ref{eqn:rec} and the conditional expectation of the AR1 processes from equations \ref{eqn:xi} through \ref{eqn:testsev}:
+\begin{align*}
+E\left(\tilde{\xi}_{t+1}\left|x_t,\theta_t \right.\right) &= \mbox{max}(\phi_\xi \tilde{\xi}_t, 0) \\
+E\left(\tilde{w}^A_{t+1}\left|x_t,\theta_t \right.\right) &= \mbox{min}\left(\mbox{max}(\phi_A (\tilde{w}^A_t - 1) + 1, 0), 1\right) \\
+E\left(\tilde{w}^I_{t+1}\left|x_t,\theta_t \right.\right) &= \mbox{min}\left(\mbox{max}(\phi_I (\tilde{w}^I_t - 1) + 1, 0), 1\right)
+\end{align*}
+
+To use the KDPF with normal kernels, it is necessary to parameterize the fixed parameters so that their support is on the real line. We used the logarithm transformation for parameters that have positive support and the logit transformation for parameters in the interval (0,1).
+
+\subsection{KDPF Implementation \label{sec:imp}}
+
+The KDPF was run on data collected daily by The COVID Tracking Project for the whole US. The time period of data collection that was analyzed was from 1/22/2020 through 8/21/2020, and time iterations of the KDPF corresponded to days (such that $t = 0$ corresponded to 1/21/2020, $t = 1$ to 1/22/2020, and so on). Four age categories were used in the age-stratified compartmental model (0-19, 20-49, 50-64, 65 and over), with the population size of each age group taken from US census data \href{https://www2.census.gov/programs-surveys/popest/}{(https://www2.census.gov/programs-surveys/popest/)} and shown in Exhibit \ref{tab:fixed}.
+
+In order to avoid particle degeneracy in the KDPF, $J = 500000$ particles were used. Following recommendations from \citet{Liu:West:comb:2001} and \citet{Sheinson:2014}, the discount factor $\Delta$ was set to 0.99 and stratified resampling with an effective sample size threshold of 0.8 was implemented using R package \textbf{\texttt{smcUtils}} \citep{smcUtils}. All hospitalization parameters shown in Exhibit \ref{tab:param}, the proportion of testing capacity applied to infected population ($p_\alpha$), and the observation standard deviation parameters $\sigma_p$, $\sigma_h$, $\sigma_i$, $\sigma_v$, and $\sigma_d$ were assumed to be unknown. All other fixed parameters were assumed to be known and set at fixed values shown in Exhibit \ref{tab:fixed}. The KDPF runs were initialized by assuming 1 exposed individual in each age group. The unknown fixed parameters and initial states of the AR1 processes were sampled from independent prior distributions shown in Exhibit \ref{tab:priors}. The KDPF was implemented in R and the code is available on Github \href{https://github.roche.com/E4ATI/e4ati_469}{(https://github.roche.com/E4ATI/e4ati\_469)}.
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|c|cccc|c|}
+\hline
+Parameter & \multicolumn{4}{|c|}{Value(s)} & Source \\
+\hline
+ & Age 0-19 & Age 20-44 & Age 50-64 & Age 65+ & \\
+\hline
+\multicolumn{6}{|l|}{\textbf{\emph{Transmission parameters}}} \\
+\hline
+$P_a$ & 82500000 & 132000000 & 62700000 & 52800000 & US Census \\
+$\beta$ & \multicolumn{4}{|c|}{0.0493} & \citet{moghadasCOVID} \\
+$M_{0-19,a}$ & 9.76 & 3.77 & 1.51 & 0.60 & \citet{moghadasCOVID} \\
+$M_{20-49,a}$ & 3.77 & 9.43 & 3.05 & 0.70 & \citet{moghadasCOVID} \\
+$M_{50-64,a}$ & 1.51 & 3.05 & 2.96 & 0.76 & \citet{moghadasCOVID} \\
+$M_{65+,a}$ & 0.60 & 0.70 & 0.76 & 0.60 & \citet{moghadasCOVID} \\
+$\tilde{M}_{0-19,a}$ & 2.04 & 1.56 & 0.50 & 0.38 & \citet{moghadasCOVID} \\
+$\tilde{M}_{20-49,a}$ & 1.56 & 1.51 & 0.45 & 0.24 & \citet{moghadasCOVID} \\
+$\tilde{M}_{50-64,a}$ & 0.50 & 0.45 & 1.04 & 0.19 & \citet{moghadasCOVID} \\
+$\tilde{M}_{65+,a}$ & 0.38 & 0.24 & 0.19 & 0.64 & \citet{moghadasCOVID} \\
+$\kappa_M$ & \multicolumn{4}{|c|}{0.5} & \citet{moghadasCOVID} \\
+$\kappa_A$ & \multicolumn{4}{|c|}{0.5} & Assumption \\
+$\nu \ge 0$ & \multicolumn{4}{|c|}{1 / 5.2} & \citet{moghadasCOVID} \\
+\hline
+\multicolumn{6}{|l|}{\textbf{\emph{Symptoms and behavioral parameters}}} \\
+\hline
+$\zeta_a$ & \multicolumn{4}{|c|}{0.179} & \citet{Mizumoto:2020} \\
+$\theta_a$ & 0.973 & 0.900 & 0.648 & 0.466 & \citet{WHO:COVID:2020}, scaled to \citet{moghadasCOVID} \\
+$\gamma$ & \multicolumn{4}{|c|}{1 / 4.6} & \citet{moghadasCOVID} \\
+$q$ & \multicolumn{4}{|c|}{0.05} & \citet{moghadasCOVID} \\
+$f_I$ & \multicolumn{4}{|c|}{0.8} & \citet{moghadasCOVID} \\
+$f_A$ & \multicolumn{4}{|c|}{0.05} & \citet{moghadasCOVID} \\
+$f_T$ & \multicolumn{4}{|c|}{0.7} & Assumption \\
+$\tau_I$ & \multicolumn{4}{|c|}{1 / 1} & \citet{moghadasCOVID} \\
+$\tau_A$ & \multicolumn{4}{|c|}{1 / 2} & \citet{moghadasCOVID} \\
+$\phi_\xi$ & \multicolumn{4}{|c|}{0.95} & Assumption \\
+$\sigma_\xi$ & \multicolumn{4}{|c|}{0.25} & Assumption \\
+\hline
+\multicolumn{6}{|l|}{\textbf{\emph{Testing parameters}}} \\
+\hline
+$w_s$ & \multicolumn{4}{|c|}{0.1} & Assumption  \\
+$r_I$ & \multicolumn{4}{|c|}{1 / 2} & Assumption \\
+$r_A$ & \multicolumn{4}{|c|}{1 / 3} & Assumption \\
+$\phi$ & \multicolumn{4}{|c|}{1 / 2.3} & Average of multiple tests, see Exhibit \ref{tab:tests} \\
+$\omega$ & \multicolumn{4}{|c|}{0.972} & Average of multiple tests, see Exhibit \ref{tab:tests} \\
+$\phi_I$ & \multicolumn{4}{|c|}{0.995} & Assumption \\
+$\phi_A$ & \multicolumn{4}{|c|}{0.99} & Assumption \\
+$\sigma_w$ & \multicolumn{4}{|c|}{0.1} & Assumption \\
+$\alpha$ & \multicolumn{4}{|c|}{1122898} & Market research, US Census data \\
+\hline
+\end{tabular}
+\caption{Assumed values of fixed parameters.}
+\label{tab:fixed}
+\end{center}
+\end{table}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+Test system & Market share ($s_j$) & \makecell{Daily \\ Throughput \\ (range)} & Sensitivity ($\omega_j$) & \makecell{Turnaround \\ time ($1/\phi_j$)} & Source \\
+\hline
+ &  &  &  &  & \citet{Poljak:2020} \\
+HT & 43.2\% & 470 - 2880 & 98.4\% & 2 & \citet{Degli-Angeli:2020} \\
+ &  &  &  &  & \citet{Hogan:2020} \\
+ \hline
+POC & 11.8\% & 32 & 93.0\% & 1 & \citet{Zhen:2020} \\
+\hline
+LDT & 25.0\% & 16 & 97.2\% & 3 & Set to average of commercial tests \\
+\hline
+CDC & 10.0\% & 16 & 97.2\% & 3 & Set to average of commercial tests \\
+\hline
+Other & 10.0\% & 35 & 97.2\% & 2.3 & Set to overall average \\
+\hline
+\end{tabular}
+\caption{Testing capacity and system performance.}
+\label{tab:tests}
+\end{center}
+\end{table}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|c|c|c|l|c|}
+\hline
+Parameter & Distribution & Mean & \makecell{Standard Deviation \\ (hyperparameters)} & Source for mean \\
+\hline
+$p_\alpha$ & Beta & 0.1 & 0.0420 ($shape = 5$, $rate = 45$) & Assumption \\
+$\sigma_p$ & Gamma & 0.5 & 0.1000 ($shape = 25$, $rate = 50$) & Assumption \\
+$\rho_{0-19}$ & Beta & 0.592 & 0.0688 ($a = 29.6$, $b = 20.4$) & \citet{Petrilli:2020} \\
+$\rho_{20-49}$ & Beta & 0.350 & 0.0668 ($a = 17.5$, $b = 32.5$) & \citet{Petrilli:2020} \\
+$\rho_{50-64}$ & Beta & 0.573 & 0.0693 ($a = 28.65$, $b = 21.35$) & \citet{Petrilli:2020} \\
+$\rho_{65+}$ & Beta & 0.698 & 0.0643 ($a = 34.9$, $b = 15.1$) & \citet{Petrilli:2020} \\
+$\sigma_h$ & Gamma & 0.5 & 0.1000 ($shape = 25$, $rate = 50$) & Assumption \\
+$\delta$ & Gamma & 1 / 7 & 0.0535 ($shape = 7.14$, $rate = 50$) & \citet{Garg:2020} \\
+$\psi_h$ & Gamma & 1 / 8.3 & 0.0491 ($shape = 6.02$, $rate = 50$) & \citet{Beigel:2020} \\
+$\psi_c$ & Gamma & 1 / 22 & 0.0302 ($shape = 2.27$, $rate = 50$) & \citet{Beigel:2020} \\
+$\psi_v$ & Gamma & 1 / 28 & 0.0267 ($shape = 1.79$, $rate = 50$) & \citet{Beigel:2020} \\
+$c_{0-19}$ & Beta & 0.152 & 0.1082 ($a = 1.52$, $b = 8.48$) & \citet{Richardson:2020} \\
+$c_{20-49}$ & Beta & 0.215 & 0.1239 ($a = 2.15$, $b = 7.85$) & \citet{Richardson:2020} \\
+$c_{50-64}$ & Beta & 0.215 & 0.1239 ($a = 2.15$, $b = 7.85$) & \citet{Richardson:2020} \\
+$c_{65+}$ & Beta & 0.237 & 0.1282 ($a = 2.37$, $b = 7.63$) & \citet{Richardson:2020} \\
+$\sigma_i$ & Gamma & 0.5 & 0.1000 ($shape = 25$, $rate = 50$) & Assumption \\
+$v$ & Beta & 0.6 & 0.1477 ($a = 6$, $b = 4$) & Assumption \\
+$\sigma_v$ & Gamma & 0.5 & 0.1000 ($shape = 25$, $rate = 50$) & Assumption \\
+$m_h$ & Beta & 0.067 & 0.0754 ($a = 0.67$, $b = 9.33$) & Derived from \citet{Petrilli:2020} \\
+$m_c$ & Beta & 0.048 & 0.0645 ($a = 0.48$, $b = 9.52$) & Derived from \citet{Petrilli:2020} \\
+$m_v$ & Beta & 0.099 & 0.0900 ($a = 0.99$, $b = 9.01$) & Derived from \citet{Petrilli:2020} \\
+$\mu_h$ & Gamma & 1 / 9.7 & 0.0454 ($shape = 5.15$, $rate = 50$) & \citet{moghadasCOVID} \\
+$\mu_c$ & Gamma & 1 / 6.0 & 0.0577 ($shape = 8.33$, $rate = 50$) & \citet{ICNARC:2020} \\
+$\mu_v$ & Gamma & 1 / 5.4 & 0.0609 ($shape = 9.26$, $rate = 50$) & \citet{Argenziano:2020} \\
+$\sigma_d$ & Gamma & 0.5 & 0.1000 ($shape = 25$, $rate = 50$) & Assumption \\
+\hline
+Initial state & Distribution & Mean & \makecell{Standard Deviation \\ (hyperparameters)} & Source for mean \\
+\hline
+$\xi_0$ & Log-normal & 2 (log-scale) & 0.3 (log-scale) & Assumption \\
+$w^A_0$ & Beta & 0.1 & 0.0299 ($a = 10$, $b = 90$) & Assumption \\
+$w^I_0$ & Beta & 0.1 & 0.0299 ($a = 10$, $b = 90$) & Assumption \\
+\hline
+\end{tabular}
+\caption{Prior distributions of unknown parameters.}
+\label{tab:priors}
+\end{center}
+\end{table}
+
+\section{Results \label{sec:results}}
+
+Estimates of the marginal filtered distributions of unknown fixed parameters were summarized in terms of their posterior means and 95\% credible intervals, calculated via monte carlo estimates from the weighted particle samples (Exhibit \ref{tab:postparam}). In addition, these were calculated for aggregates of model states (e.g. for combining age groups) by summing the values of individual states together for each particle. Exhibit \ref{fig:filtresourceUS} displays these estimates for resource utilization over time.
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|c|cccc|}
+\hline
+Parameter & \multicolumn{4}{|c|}{Posterior Mean} \\
+\hline
+& Age 0-19 & Age 20-44 & Age 50-64 & Age 65+ \\
+\hline
+$p_\alpha$ & \multicolumn{4}{|c|}{0.0983} \\
+$\rho_a$ & 0.5961 & 0.4301 & 0.5228 & 0.7659 \\
+$\delta$ & \multicolumn{4}{|c|}{0.1303} \\
+$\psi_h$ & \multicolumn{4}{|c|}{0.0580} \\
+$\psi_c$ & \multicolumn{4}{|c|}{0.0556} \\
+$\psi_v$ & \multicolumn{4}{|c|}{0.0484} \\
+$c_a$ & 0.1034 & 0.2058 & 0.1083 & 0.1420 \\
+$v$ & \multicolumn{4}{|c|}{0.3556} \\
+$m_h$ & \multicolumn{4}{|c|}{0.2591} \\
+$m_c$ & \multicolumn{4}{|c|}{0.0887} \\
+$m_v$ & \multicolumn{4}{|c|}{0.0002} \\
+$\mu_h$ & \multicolumn{4}{|c|}{0.1441} \\
+$\mu_c$ & \multicolumn{4}{|c|}{0.1464} \\
+$\mu_v$ & \multicolumn{4}{|c|}{0.1249} \\
+\hline
+\end{tabular}
+\caption{Posterior means of unknown fixed parameters.}
+\label{tab:postparam}
+\end{center}
+\end{table}
+
+\begin{figure}
+\centering
+\includegraphics[width=1.0\textwidth]{figures/covid_pf_US_500000_ResourceObserved-2020-08-25}
+\caption{Posterior means (green lines) and 95\% credible intervals (blue lines) of the marginal filtered distributions for resource utilization (panels) in the United States, alongside observed data (red lines).} \label{fig:filtresourceUS}
+\end{figure}
+
+Particle trajectories (or traces) were calculated for each of the unknown states by tracing the most recent value of each particle back to each parent particle from which it was resampled. From these traces, a mean particle trace could be calculated by taking the average particle trace at each time point. Alternatively, the particle trace that minimizes the sum of squared distances (SSd) between observed and traced resource utilization could be determined. The SSd-minimizing particle trace combined with the assumed values of known fixed parameters and posterior mean estimates of the unknown fixed parameters were used to simulate a pandemic similar to the one observed in the US and to generate the various testing and treatment scenarios discussed in the main manuscript. Exhibit \ref{fig:traceUS} displays the simulated trajectories for each of the resource utilization states presented in Exhibit \ref{fig:filtresourceUS}. Exhibit \ref{fig:dyntraceUS} shows the mean, SSd-minimizing, and individual particle traces for changes in the time-varying effective transmission rate, proportion of mild cases tested over time, and proportion of severe cases tested over time. Exhibit \ref{tab:eff} shows assumptions around treatment efficacy and expanded molecular diagnostic testing and how they were used to modify fixed parameters to represent different model scenarios.
+
+\begin{figure}
+\centering
+\includegraphics[width=1.0\textwidth]{figures/covid_pf_US_500000_observedTrace-2020-08-26}
+\caption{Simulated (blue lines) and observed (red lines) resource utilization (panels) in the United States.} \label{fig:traceUS}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[width=1.0\textwidth]{figures/covid_pf_trace_US_500000-dynamicStates-2020-08-26}
+\caption{SSd-minimizing (thick black lines) and mean (thin black lines) particle traces of multiplicative changes in the effective transmission rate (top), proportion of mild cases tested (middle), and proportion of severe cases tested (bottom) over time in the United States. Dashed black lines denote the posterior means of the marginal filtered distributions and gray lines show the individual particle traces.} \label{fig:dyntraceUS}
+\end{figure}
+
+\begin{table}
+\begin{center}
+\begin{tabular}{|c|l|}
+\hline
+Scenario & \makecell{Modifications to model parameters \\ (modified values denoted by *)} \\
+\hline
+No testing capacity or treatment & -$\alpha^*$ set to 0 (No testing capacity) \\
+(Reference scenario) & -$w_s^*$ set to 0 (No asymptomatic testing) \\
+ & -Mortality hazard ratios set to 1.25, 1.25, and 1.54 \\
+ & for non-ICU, ICU w/o vent, and ICU w/ vent patients, respectively \\
+ & (reverse the mortality benefit of dexamethasone, assuming 50\% of \\
+ & patients treated since Day 1 (1/22/2020) of the model) \\
+ & -Refer to Section \ref{sec:mort} for detailed calculation on mortality \\
+\hline
+No private sector treatment or testing & -$\alpha^*$ set to $s_j \times \alpha$, where $s_j$ set to 0 for all except LDT and CDC \\
+(Public sector only) & -$s_j^*$'s renormalized to sum to 1 \\
+\hline
+Private sector treatment but not testing & -$\alpha^*$ set to $s_j \times \alpha$, where $s_j$ set to 0 for all except LDT and CDC \\
+(Public + private sector) & -$s_j^*$'s renormalized to sum to 1 \\
+ & -Length of stay for non-ICU patients reduced by 2.89 days, \\
+ & assuming 50\% of patients are treated starting 6/1/2020 \\
+ & $\left(\psi_h^* = \frac{1}{\frac{1}{\psi_h} - 0.5\times2.89}\right)$ \\
+ & -Mortality hazard ratio for non-ICU patients of 0.28 \\
+ & -Refer to Section \ref{sec:mort} for detailed calculation on mortality \\
+\hline
+Private sector testing but not treatment & -No change to model parameters \\
+(Public + private sector) & \\
+\hline
+Private sector treatment and testing & -No change in testing parameters \\
+(Public + private sector) & -Length of stay for non-ICU patients reduced by 2.89 days, \\
+ & assuming 50\% of patients are treated starting 6/1/2020 \\
+ & $\left(\psi_h^* = \frac{1}{\frac{1}{\psi_h} - 0.5\times2.89}\right)$ \\
+ & -Mortality hazard ratio for non-ICU patients of 0.28 \\
+ & -Refer to Section \ref{sec:mort} for detailed calculation on mortality \\
+\hline
+\end{tabular}
+\caption{Model scenario assumptions and corresponding modifications to model parameters.}
+\label{tab:eff}
+\end{center}
+\end{table}
+
+\clearpage
+
+\section{Mortality Calculations \label{sec:mort}}
+
+To apply the hazard ratio for the treatment effect, first the probability of death in the hospital ($p_m$) is calculated using the weights associated with mortality ($m$), mortality rates ($\mu$), and recovery rates ($\psi$). As in \citet{moghadasCOVID}, we calculate this probability as
+\[p_m = \frac{m\mu}{m\mu + (1-m)\psi}\]
+Then, we apply the hazard ratio for the mortality benefit to calculate the probability of death in the hospital among treated patients ($p_m^*$) according to
+\[p_m^* = p_m - p_{trt}\left(p_m - \left[1 - (1 - p_m)^{HR}\right]\right)\]
+where $p_{trt}$ is the proportion of patients treated and $HR$ is the hazard ratio. For example, in our model scenarios incorporating private sector treatment benefit, $p_{trt}$ is assumed to be 0.5 and $HR$ is assumed to be 0.28 \citep{Beigel:2020}. Finally, modified model weights ($m^*$) are then back-calculated according to
+\[m^* = \frac{p_m^*\psi}{p_m^*\psi + (1 - p_m^*)\mu}\]
+
+\section{Limitations \label{sec:lim}}
+
+A few technical limitations regarding the model and estimation procedures are worth noting. First, observed data from The COVID Tracking Project are based on reported numbers from state and territory public health authorities. Not all states report each type of data, and they may vary in terms of their completeness. In addition, the reporting of the data is expected to lag behind actual cases. For more information on the data quality, refer to The COVID Tracking Project website (https://covidtracking.com/about-data).
+
+In addition, the model may suffer from identifiability issues due to the large number of unknown states and fixed parameters. Thus, while we believe calibration to the observed data results in an accurate depiction of estimated resource use, testing, and mortality, individual model state and parameter estimates should be interpreted with caution, since multiple combinations of state and parameter values could result in similar estimates of resource use, testing, or mortality.
+
+Lastly, simulated model scenarios assume that modifications to fixed parameters reflecting the impact of treatment and testing happen instantaneously at a single point in time, whereas a model that would allow for these parameters to change gradually over time is probably more reflective of reality. We made simplifying assumptions that 1. removal of public sector treatment and testing means that 50\% of patients lose the clinical benefits of dexamethasone, and that LDT and CDC testing capacity are reduced to 0 starting at Day 1 of the model; and 2. addition of private sector treatment and testing means 50\% of patients receive the clinical benefits of remdesivir, and that HT, POC, and other commercial testing capacity become available starting at 6/1/2020 (Day 132) of the model.
+
+\clearpage
+
+\bibliographystyle{model1-num-names}
+\bibliography{danny}
+
+\end{document}
